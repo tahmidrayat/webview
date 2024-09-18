@@ -17,17 +17,27 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mWebView = findViewById(R.id.activity_main_webview);
+
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         // Definindo o WebViewClient para garantir que os links sejam abertos na WebView
         mWebView.setWebViewClient(new MyWebViewClient());
 
         // REMOTE RESOURCE
-        mWebView.loadUrl("https://rumos.codexti.com/login");
+        mWebView.loadUrl("https://example.com");
 
         // LOCAL RESOURCE
-        // mWebView.loadUrl("file:///android_asset/index.html");
+        mWebView.loadUrl("file:///android_asset/index.html");
+
     }
 
     @Override
@@ -42,9 +52,8 @@ public class MainActivity extends Activity {
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            // Sempre carregar os links dentro da WebView
             view.loadUrl(url);
-            return true; // Indica que o WebView está lidando com o URL
+            return true;
         }
     }
 }
