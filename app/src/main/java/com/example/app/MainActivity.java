@@ -2,10 +2,14 @@ package com.example.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -31,6 +35,18 @@ public class MainActivity extends Activity {
 
         // Definindo o WebViewClient para garantir que os links sejam abertos na WebView
         mWebView.setWebViewClient(new MyWebViewClient());
+
+        // Habilitando o download de arquivos
+        mWebView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                // Criando uma Intent para baixar o arquivo
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+                Toast.makeText(MainActivity.this, "Iniciando o download...", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // REMOTE RESOURCE
         mWebView.loadUrl("https://example.com");
