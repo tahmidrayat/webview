@@ -5,15 +5,19 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.DownloadListener;
+import android.widget.Toast;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
     private WebView mWebView;
+    private ValueCallback<Uri[]> mFilePathCallback;
+    private final static int FILECHOOSER_RESULTCODE = 1;
 
     @Override
     @SuppressLint("SetJavaScriptEnabled")
@@ -36,6 +40,26 @@ public class MainActivity extends Activity {
         // Definindo o WebViewClient para garantir que os links sejam abertos na WebView
         mWebView.setWebViewClient(new MyWebViewClient());
 
+        // Definindo o WebChromeClient para lidar com uploads de arquivos
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            // For Android 5.0+
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                if (mFilePathCallback != null) {
+                    mFilePathCallback.onReceiveValue(null);
+                }
+                mFilePathCallback = filePathCallback;
+                Intent intent = fileChooserParams.createIntent();
+                try {
+                    startActivityForResult(intent, FILECHOOSER_RESULTCODE);
+                } catch (Exception e) {
+                    mFilePathCallback = null;
+                    return false;
+                }
+                return true;
+            }
+        });
+
         // Habilitando o download de arquivos
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
@@ -57,11 +81,23 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (mWebView.canGoBack()) {
-            mWebView.goBack();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == FILECHOOSER_RESULTCODE) {
+            if (mFilePathCallback != null) {
+                Uri[] results = null;
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data != null) {
+                        String dataString = data.getDataString();
+                        if (dataString != null) {
+                            results = new Uri[]{Uri.parse(dataString)};
+                        }
+                    }
+                }
+                mFilePathCallback.onReceiveValue(results);
+                mFilePathCallback = null;
+            }
         } else {
-            super.onBackPressed();
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
