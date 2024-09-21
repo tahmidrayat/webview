@@ -20,6 +20,17 @@ public class MainActivity extends Activity {
     private final static int FILECHOOSER_RESULTCODE = 1;
 
     @Override
+    public void onBackPressed() {
+        if (mWebView.canGoBack()) {
+            // Se houver páginas no histórico, voltar para a página anterior
+            mWebView.goBack();
+        } else {
+            // Se não houver, comportar-se como o botão "voltar" padrão do Android
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
