@@ -17,20 +17,20 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 import android.webkit.WebViewClient;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends Activity {
 
     private WebView mWebView;
     private ValueCallback<Uri[]> mFilePathCallback;
     private final static int FILECHOOSER_RESULTCODE = 1;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public void onBackPressed() {
         if (mWebView.canGoBack()) {
-            // Se houver páginas no histórico, voltar para a página anterior
             mWebView.goBack();
         } else {
-            // Se não houver, comportar-se como o botão "voltar" padrão do Android
             super.onBackPressed();
         }
     }
@@ -40,6 +40,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         mWebView = findViewById(R.id.activity_main_webview);
 
         WebSettings webSettings = mWebView.getSettings();
@@ -53,12 +55,9 @@ public class MainActivity extends Activity {
         webSettings.setDatabaseEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
-        // Definindo o WebViewClient para garantir que os links sejam abertos na WebView
         mWebView.setWebViewClient(new MyWebViewClient());
 
-        // Definindo o WebChromeClient para lidar com uploads de arquivos
         mWebView.setWebChromeClient(new WebChromeClient() {
-            // Para Android 5.0+
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 if (mFilePathCallback != null) {
@@ -81,6 +80,11 @@ public class MainActivity extends Activity {
 
         // LOCAL RESOURCE
         // mWebView.loadUrl("file:///android_asset/index.html");
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            mWebView.reload();
+            swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     @Override
@@ -107,41 +111,31 @@ public class MainActivity extends Activity {
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            // Se o URL for um arquivo de download, tratar manualmente o download
             if (url.endsWith(".pdf") || url.endsWith(".zip") || url.endsWith(".doc") || url.endsWith(".docx")) {
-                // Mostrar um diálogo de confirmação antes de iniciar o download
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Download")
                         .setMessage("Do you want to download the file?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                                String cookies = CookieManager.getInstance().getCookie(url);
-                                String fileName = URLUtil.guessFileName(url, null, null);
-                                request.addRequestHeader("cookie", cookies);
-                                request.addRequestHeader("User-Agent", view.getSettings().getUserAgentString());
-                                request.setDescription("Downloading file...");
-                                request.setTitle(fileName);
-                                request.allowScanningByMediaScanner();
-                                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                            String cookies = CookieManager.getInstance().getCookie(url);
+                            String fileName = URLUtil.guessFileName(url, null, null);
+                            request.addRequestHeader("cookie", cookies);
+                            request.addRequestHeader("User-Agent", view.getSettings().getUserAgentString());
+                            request.setDescription("Downloading file...");
+                            request.setTitle(fileName);
+                            request.allowScanningByMediaScanner();
+                            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 
-                                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                                dm.enqueue(request);
-                                Toast.makeText(getApplicationContext(), "Downloading file...", Toast.LENGTH_LONG).show();
-                            }
+                            DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                            dm.enqueue(request);
+                            Toast.makeText(getApplicationContext(), "Downloading file...", Toast.LENGTH_LONG).show();
                         })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                         .setIcon(android.R.drawable.ic_menu_save)
                         .show();
-                return true; // Bloquear a WebView de carregar o URL de arquivo diretamente
+                return true;
             }
-
-            // Permitir que URLs de outras páginas sejam carregadas na WebView
             return false;
         }
     }
