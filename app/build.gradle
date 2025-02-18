@@ -10,6 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -18,4 +19,6 @@ android {
     }
 }
 
-
+dependencies {
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+}
