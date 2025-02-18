@@ -1,4 +1,4 @@
-package com.example.app;
+package com.example.webapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -77,10 +77,10 @@ public class MainActivity extends Activity {
         });
 
         // REMOTE RESOURCE
-        mWebView.loadUrl("https://example.com");
+        mWebView.loadUrl("https://github.com/htr-tech");
 
         // LOCAL RESOURCE
-        mWebView.loadUrl("file:///android_asset/index.html");
+        // mWebView.loadUrl("file:///android_asset/index.html");
     }
 
     @Override
@@ -112,15 +112,15 @@ public class MainActivity extends Activity {
                 // Mostrar um diálogo de confirmação antes de iniciar o download
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Download")
-                        .setMessage("Deseja baixar o arquivo?")
-                        .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                        .setMessage("Do you want to download the file?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                                 String cookies = CookieManager.getInstance().getCookie(url);
                                 String fileName = URLUtil.guessFileName(url, null, null);
                                 request.addRequestHeader("cookie", cookies);
                                 request.addRequestHeader("User-Agent", view.getSettings().getUserAgentString());
-                                request.setDescription("Baixando arquivo...");
+                                request.setDescription("Downloading file...");
                                 request.setTitle(fileName);
                                 request.allowScanningByMediaScanner();
                                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -128,10 +128,10 @@ public class MainActivity extends Activity {
 
                                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                                 dm.enqueue(request);
-                                Toast.makeText(getApplicationContext(), "Baixando arquivo...", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Downloading file...", Toast.LENGTH_LONG).show();
                             }
                         })
-                        .setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }

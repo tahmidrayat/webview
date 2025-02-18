@@ -15,3 +15,14 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+
+-keep class com.example.webapp.** { *; }
+-keep class android.webkit.** { *; }
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keep class * implements android.os.Parcelable { 
+    public static final android.os.Parcelable$Creator *; 
+}
+-keep class **.R$* { *; }
