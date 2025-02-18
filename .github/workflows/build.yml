@@ -22,6 +22,9 @@ jobs:
 
     - name: Build
       run: ./gradlew assembleRelease
+
+    - name: Find
+      run: find . -name "*.apk"
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
