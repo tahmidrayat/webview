@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
         webSettings.setDomStorageEnabled(true);
   //      webSettings.setAppCacheEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
         mWebView.setWebViewClient(new MyWebViewClient());
 
