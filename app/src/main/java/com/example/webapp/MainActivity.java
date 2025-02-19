@@ -18,6 +18,9 @@ import android.webkit.WebView;
 import android.widget.Toast;
 import android.webkit.WebViewClient;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
@@ -43,6 +46,8 @@ public class MainActivity extends Activity {
         
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         mWebView = findViewById(R.id.activity_main_webview);
+        EditText urlInput = findViewById(R.id.url_input);
+        Button goButton = findViewById(R.id.go_button);
 
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -75,12 +80,20 @@ public class MainActivity extends Activity {
             }
         });
 
-        // REMOTE RESOURCE
-        mWebView.loadUrl("https://github.com/htr-tech");
-
-        // LOCAL RESOURCE
-        // mWebView.loadUrl("file:///android_asset/index.html");
-
+        // Load Default Url
+        String defaultUrl = "https://github.com/htr-tech";
+        mWebView.loadUrl(defaultUrl);
+        urlInput.setText(defaultUrl);
+        
+        goButton.setOnClickListener(v -> {
+            String url = urlInput.getText().toString().trim();
+            
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "https://" + url;
+            }
+            mWebView.loadUrl(url);
+        });
+        
         swipeRefreshLayout.setOnRefreshListener(() -> {
             mWebView.reload();
             swipeRefreshLayout.setRefreshing(false);
